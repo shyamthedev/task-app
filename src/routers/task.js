@@ -38,6 +38,33 @@ router.get('/tasks/:id', async (req, res, next) => {
     }
 })
 
+router.patch('/tasks/:id', async (req, res, next) => {
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['description', 'completed']
+    const isValidOperation = updates.every((update) => { allowedUpdates.includes(update) })
+    if (!isValidOperation) {
+        return res.status(400).send('Invalid Updates')
+    }
+    try {
+    //    const task = await Task.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true})
+       let task =  await Task.findById({_id:req.params.id})
+       if(!task){
+           return res.status(404).send('Task not found with given id')
+       }
+       updates.forEach((update)=>{
+           task[update] = req.body[update]
+       })
+       task = await task.save()
+           if(!task){
+               return res.status(404).send('User not found')
+           }
+           res,send(task)
+
+    } catch (error) {
+
+    }
+})
+
 router.delete('/tasks/:id', async (req, res, next) => {
     try {
         const task = await Task.findByIdAndDelete({ _id: req.params.id })
