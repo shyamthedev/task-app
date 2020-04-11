@@ -2,16 +2,7 @@ const express = require('express')
 const router = new express.Router()
 const User = require('../models/user')
 
-
-router.post('/users', async (req, res, next) => {
-    let user = new User(req.body)
-    try {
-        user = await user.save()
-        res.send(user)
-    } catch (error) {
-        res.status(400).send()
-    }
-});
+const auth = require('../middleware/auth')
 
 router.post('/users/signup', async (req, res, next) => {
     try {
@@ -20,8 +11,9 @@ router.post('/users/signup', async (req, res, next) => {
             return res.status(400).send('User already with given email')
         }
         user = new User(req.body)
+        user = user.save()
         const token = await user.generateJwtToken()
-        res.send({ user, token })
+        res.send.status(201)({ user, token })
     } catch (error) {
         res.status(500).send(error)
     }
@@ -40,7 +32,21 @@ router.post('/users/login', async (req, res, next) => {
     }
 })
 
-router.get('/users', async (req, res, next) => {
+router.get('/users/me', auth, async (req, res, next) => {
+    res.send(req.user)
+})
+
+router.post('/users', async (req, res, next) => {
+    let user = new User(req.body)
+    try {
+        user = await user.save()
+        res.send(user)
+    } catch (error) {
+        res.status(400).send()
+    }
+});
+
+router.get('/users', auth, async (req, res, next) => {
     try {
         const users = await User.find({})
         if (!users.length) {
