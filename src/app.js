@@ -9,6 +9,7 @@ app.use(taskRoutes)
 
 
 const port = process.env.port || 3000
-app.listen(port,()=>{
+app.listen(port, () => {
     console.log(`listening port ${port}`)
 })
+
